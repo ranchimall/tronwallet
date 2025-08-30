@@ -1,9 +1,11 @@
 :root {
   --primary-color: #3b82f6;
   --primary-dark: #2563eb;
+  --primary-rgb: 59, 130, 246;
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
+  --error-color: #ef4444;
   --background-color: #f8fafc;
   --surface-color: #ffffff;
   --text-primary: #1f2937;
@@ -17,6 +19,7 @@
   --border-radius: 0.75rem;
   --border-radius-sm: 0.5rem;
   --transition: all 0.3s ease;
+  --font-mono: "Monaco", "Menlo", "Ubuntu Mono", monospace;
 }
 
 /* Dark mode support - both media query and data attribute */
@@ -27,6 +30,7 @@
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --border-color: #334155;
+    --primary-rgb: 59, 130, 246;
   }
 }
 
@@ -37,6 +41,7 @@
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --border-color: #334155;
+  --primary-rgb: 59, 130, 246;
 }
 
 /* Explicit light theme via data attribute */
@@ -2011,7 +2016,7 @@ sm-popup::part(popup) {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
   opacity: 0.3;
 }
 
@@ -2603,7 +2608,7 @@ sm-popup::part(popup) {
   word-break: break-all;
   text-align: right;
   max-width: 250px;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-family: var(--font-mono);
   background: linear-gradient(
     135deg,
     rgba(59, 130, 246, 0.1),
@@ -2616,6 +2621,22 @@ sm-popup::part(popup) {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   flex: 1;
   margin-left: 0.75rem;
+}
+
+.transaction-details .detail-value.success {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.transaction-details .detail-value.failed {
+  color: var(--error-color);
+  font-weight: 600;
+}
+
+.transaction-details .detail-value.amount {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary-color);
 }
 
 /* Balance Info Styling */
@@ -2665,6 +2686,10 @@ sm-popup::part(popup) {
   font-weight: 700;
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.balance-amount .amount-number {
+  display: inline;
 }
 
 .account-details {
@@ -2749,7 +2774,10 @@ sm-popup::part(popup) {
   }
 
   .balance-amount {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -3969,7 +3997,6 @@ sm-popup::part(popup) {
   .summary-value {
     font-size: 0.8rem;
   }
-
   .address-text {
     font-size: 0.75rem;
   }
@@ -4376,29 +4403,8 @@ sm-popup::part(popup) {
   color: var(--primary-color);
 }
 
-/* ===== MOBILE RESPONSIVE FOR NEW ELEMENTS ===== */
+
 @media (max-width: 768px) {
-  .search-type-tabs {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .tab-btn {
-    justify-content: flex-start;
-    padding: 0.625rem 1rem;
-  }
-
-  .balance-header,
-  .transaction-details-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .share-btn {
-    align-self: flex-end;
-  }
-
   .tx-detail-row {
     flex-direction: column;
     align-items: flex-start;
@@ -4569,6 +4575,177 @@ sm-popup::part(popup) {
   font-size: 0.875rem;
   color: var(--text-muted);
   font-style: italic;
+}
+
+/* Search Type Section */
+.search-type-section {
+  margin-bottom: 1.5rem;
+}
+
+.search-type-label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.search-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.search-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.search-type-btn:hover {
+  background: var(--background-color);
+  color: var(--text-primary);
+}
+
+.search-type-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.search-type-btn i {
+  font-size: 0.875rem;
+}
+
+/* Transaction Details Card */
+.transaction-details {
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.transaction-details::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--success-color)
+  );
+  border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+}
+
+.transaction-details .detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  border-radius: var(--border-radius-sm);
+}
+
+.transaction-details .detail-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.transaction-details .detail-row:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  margin: 0 -0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.transaction-details .detail-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.transaction-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.transaction-details-header .share-btn {
+  position: absolute;
+  right: 0;
+}
+
+.transaction-details-header h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+
+@media (max-width: 768px) {
+  .transaction-details-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .transaction-details-header h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .transaction-details-header .share-btn {
+    position: static;
+    flex-shrink: 0;
+  }
+
+  .transaction-details .detail-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .transaction-details .detail-value {
+    text-align: right;
+    margin-left: 0.75rem;
+    max-width: 180px;
+    font-size: 0.7rem;
+  }
+
+  .transaction-details .detail-label {
+    min-width: 70px;
+    font-size: 0.7rem;
+  }
 }
 
 .success-header {
@@ -4743,4 +4920,118 @@ sm-popup::part(popup) {
 [data-theme="dark"] .blockchain-badge.secondary {
   background: var(--text-secondary);
   color: var(--bg-primary);
+}
+
+/* ===== TRANSACTION DETAILS CONTENT ===== */
+.transaction-details-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.tx-detail-card {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.tx-detail-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.1);
+}
+
+.tx-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tx-detail-row:last-child {
+  border-bottom: none;
+}
+
+.tx-detail-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.tx-detail-value {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  word-break: break-all;
+  text-align: right;
+  flex: 1;
+  margin-left: 1rem;
+}
+
+.tx-detail-value.success {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.tx-detail-value.failed {
+  color: var(--error-color);
+  font-weight: 600;
+}
+
+.tx-detail-value.amount {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* ===== MOBILE RESPONSIVE FOR NEW ELEMENTS ===== */
+@media (max-width: 768px) {
+  .tx-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .tx-detail-value {
+    text-align: left;
+    margin-left: 0;
+  }
+
+  .tx-detail-label {
+    min-width: auto;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .balance-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+  .balance-header h3 {
+    margin: 0;
+    text-align: left;
+    font-size: 1.1rem;
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .balance-header .share-btn {
+    margin-left: 0.5rem;
+    align-self: center;
+    flex-shrink: 0;
+  }
+}
+
+.detail-link{
+  text-decoration: none; color:white; cursor: pointer;
 }

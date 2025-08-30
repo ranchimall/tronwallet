@@ -45,7 +45,6 @@ async function sendTrx() {
     // Broadcast transaction
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
 
-    
     const status = receipt.result ? "✅ Success" : "❌ Failed";
     const statusColor = receipt.result ? "green" : "red";
     const txid = receipt.txid ? truncate(receipt.txid) : "N/A";
@@ -61,23 +60,7 @@ async function sendTrx() {
         </div>
       </div>
 
-      <div class="blockchain-section">
-        <div class="blockchain-header">
-          <h4><i class="fas fa-key"></i> Private Key Used</h4>
-          <div class="blockchain-badge primary">${source}</div>
-        </div>
-        <div class="detail-row">
-          <label><i class="fas fa-key"></i> Private Key</label>
-          <div class="value-container">
-            <code>${document.getElementById("privKey").value.trim()}</code>
-            <button class="btn-icon" onclick="navigator.clipboard.writeText('${document
-              .getElementById("privKey")
-              .value.trim()}').then(()=>notify && notify('Private key copied','success'))" title="Copy Private Key">
-              <i class="fas fa-copy"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+     
 
       <div class="blockchain-section">
         <div class="blockchain-header">
@@ -87,7 +70,15 @@ async function sendTrx() {
         <div class="detail-row">
           <label><i class="fas fa-map-marker-alt"></i> From Address</label>
           <div class="value-container">
-            <code>${fromAddress}</code>
+            <code>
+          <a
+    class="detail-link"
+    href="index.html?page=transactions&address=${fromAddress}"
+    target="_blank"
+    rel="noopener"
+    title="View address details"
+  >${fromAddress}</a>
+        </code>
             <button class="btn-icon" onclick="navigator.clipboard.writeText('${fromAddress}').then(()=>notify && notify('From address copied','success'))" title="Copy From Address">
               <i class="fas fa-copy"></i>
             </button>
@@ -96,7 +87,15 @@ async function sendTrx() {
         <div class="detail-row">
           <label><i class="fas fa-map-marker-alt"></i> To Address</label>
           <div class="value-container">
-            <code>${toAddress}</code>
+            <code>
+          <a
+    class="detail-link"
+    href="index.html?page=transactions&address=${toAddress}"
+    target="_blank"
+    rel="noopener"
+    title="View address details"
+  >${toAddress}</a>
+        </code>
             <button class="btn-icon" onclick="navigator.clipboard.writeText('${toAddress}').then(()=>notify && notify('To address copied','success'))" title="Copy To Address">
               <i class="fas fa-copy"></i>
             </button>
@@ -113,7 +112,15 @@ async function sendTrx() {
         <div class="detail-row">
           <label><i class="fas fa-hashtag"></i> Transaction Hash</label>
           <div class="value-container">
-            <code>${txid}</code>
+            <code>
+          <a
+    class="detail-link"
+    href="index.html?page=transactions&tx=${receipt.txid}"
+    target="_blank"
+    rel="noopener"
+    title="View transaction details"
+  >${txid}</a>
+        </code>
             ${
               receipt.txid
                 ? `<button class="btn-icon" onclick="navigator.clipboard.writeText('${receipt.txid}').then(()=>notify && notify('Transaction hash copied','success'))" title="Copy Transaction Hash">

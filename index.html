@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tron Wallet</title>
+    <link rel="shortcut icon" href="favicon.svg" type="image/x-icon" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -54,18 +55,13 @@
             >
           </li>
           <li>
-            <a href="#" onclick="showPage('historyPage')" class="nav-link"
-              ><i class="fas fa-clock-rotate-left"></i>History</a
+            <a href="#" onclick="showPage('transactionsPage')" class="nav-link"
+              ><i class="fas fa-arrows-rotate"></i>Transactions</a
             >
           </li>
           <li>
             <a href="#" onclick="showPage('recoverPage')" class="nav-link"
               ><i class="fas fa-key"></i>Recover</a
-            >
-          </li>
-          <li>
-            <a href="#" onclick="showPage('balancePage')" class="nav-link"
-              ><i class="fas fa-coins"></i>Balance</a
             >
           </li>
         </ul>
@@ -218,39 +214,138 @@
             <div id="sendOutput"></div>
           </div>
         </div>
-        <!-- History Page -->
-        <div id="historyPage" class="page hidden">
+        <!-- Transactions Page (Merged Balance + History + TX Search) -->
+        <div id="transactionsPage" class="page hidden">
           <div class="page-header">
-            <h2>
-              <i class="fas fa-clock-rotate-left"></i> Transaction History
-            </h2>
+            <h2><i class="fas fa-arrows-rotate"></i> Transactions</h2>
+            <p>Check balance, browse history, and search by transaction hash</p>
           </div>
+
+          <!-- Balance Card -->
           <div class="card">
+            <div class="search-type-section">
+              <label class="search-type-label">Search Type:</label>
+              <div class="search-type-buttons">
+                <button
+                  class="search-type-btn active"
+                  data-type="balance"
+                  onclick="setSearchType('balance')"
+                >
+                  <i class="fas fa-wallet"></i> Balance & History
+                </button>
+                <button
+                  class="search-type-btn"
+                  data-type="transaction"
+                  onclick="setSearchType('transaction')"
+                >
+                  <i class="fas fa-file-alt"></i> Transaction Details
+                </button>
+              </div>
+            </div>
+
             <div class="form-group">
-              <label>Tron Address:</label>
+              <label
+                ><i class="fas fa-map-marker-alt"></i> Tron Address / Private
+                Key (FLO/BTC):</label
+              >
               <div class="input-with-actions">
                 <input
-                  id="historyAddr"
+                  id="balanceAddr"
                   class="form-input"
-                  placeholder="Enter Tron address"
+                  placeholder="Enter Tron address / Private Key"
                 />
                 <button
                   type="button"
                   class="input-action-btn clear-btn"
-                  onclick="clearInput('historyAddr')"
+                  onclick="clearInput('balanceAddr')"
                   title="Clear"
                 >
                   <i class="fas fa-times"></i>
                 </button>
               </div>
+              <small class="form-help"
+                >Enter an address, private key (BTC/FLO), or Tron hex to check
+                balance.</small
+              >
             </div>
-            <button class="btn btn-primary btn-block" id="loadHistory">
-              <span class="btn-text">Load History</span>
+
+            <button
+              class="btn btn-primary btn-block"
+              onclick="runBalanceCheck()"
+              id="balanceBtn"
+            >
+              <span class="btn-text"
+                ><i class="fas fa-search"></i> Check Balance</span
+              >
               <span class="btn-loading" style="display: none">
                 <i class="fas fa-spinner fa-spin"></i> Loading...
               </span>
             </button>
+            <div id="balanceOutput"></div>
           </div>
+
+          <!-- TX Search Card -->
+          <div class="card">
+            <div class="search-type-section">
+              <label class="search-type-label">Search Type:</label>
+              <div class="search-type-buttons">
+                <button
+                  class="search-type-btn"
+                  data-type="balance"
+                  onclick="setSearchType('balance')"
+                >
+                  <i class="fas fa-wallet"></i> Balance & History
+                </button>
+                <button
+                  class="search-type-btn active"
+                  data-type="transaction"
+                  onclick="setSearchType('transaction')"
+                >
+                  <i class="fas fa-file-alt"></i> Transaction Details
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label
+                ><i class="fas fa-file-alt"></i> Transaction Hash (TX
+                ID):</label
+              >
+              <div class="input-with-actions">
+                <input
+                  id="txHash"
+                  class="form-input"
+                  placeholder="Enter transaction hash (TX ID)"
+                />
+                <button
+                  type="button"
+                  class="input-action-btn clear-btn"
+                  onclick="clearInput('txHash')"
+                  title="Clear"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <small class="form-help"
+                >Enter a transaction hash to view transaction details.</small
+              >
+            </div>
+
+            <button
+              class="btn btn-primary btn-block"
+              onclick="runTxSearch()"
+              id="txSearchBtn"
+            >
+              <span class="btn-text"
+                ><i class="fas fa-search"></i> View Transaction</span
+              >
+              <span class="btn-loading" style="display: none">
+                <i class="fas fa-spinner fa-spin"></i> Searching...
+              </span>
+            </button>
+            <div id="txOutput"></div>
+          </div>
+
           <div
             id="transactionSection"
             class="card transaction-section"
@@ -380,43 +475,6 @@
             <div id="recoveryOutput"></div>
           </div>
         </div>
-        <!-- Balance Page -->
-        <div id="balancePage" class="page hidden">
-          <div class="page-header">
-            <h2><i class="fas fa-coins"></i> Check TRX Balance</h2>
-          </div>
-          <div class="card">
-            <div class="form-group">
-              <label>Tron Address / Private Key (FLO/BTC):</label>
-              <div class="input-with-actions">
-                <input
-                  id="balanceAddr"
-                  class="form-input"
-                  placeholder="Enter Tron address / Private Key"
-                />
-                <button
-                  type="button"
-                  class="input-action-btn clear-btn"
-                  onclick="clearInput('balanceAddr')"
-                  title="Clear"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-            <button
-              class="btn btn-primary btn-block"
-              onclick="runBalanceCheck()"
-              id="balanceBtn"
-            >
-              <span class="btn-text">Check Balance</span>
-              <span class="btn-loading" style="display: none">
-                <i class="fas fa-spinner fa-spin"></i> Loading...
-              </span>
-            </button>
-            <div id="balanceOutput"></div>
-          </div>
-        </div>
       </main>
     </div>
     <!-- Confirmation Popup for Send TRX -->
@@ -537,11 +595,11 @@
         <i class="fas fa-paper-plane"></i><span>Send</span>
       </button>
       <button
-        onclick="showPage('historyPage')"
+        onclick="showPage('transactionsPage')"
         class="nav-btn"
-        data-page="historyPage"
+        data-page="transactionsPage"
       >
-        <i class="fas fa-clock-rotate-left"></i><span>History</span>
+        <i class="fas fa-arrows-rotate"></i><span>Transactions</span>
       </button>
       <button
         onclick="showPage('recoverPage')"
@@ -549,13 +607,6 @@
         data-page="recoverPage"
       >
         <i class="fas fa-key"></i><span>Recover</span>
-      </button>
-      <button
-        onclick="showPage('balancePage')"
-        class="nav-btn"
-        data-page="balancePage"
-      >
-        <i class="fas fa-coins"></i><span>Balance</span>
       </button>
     </div>
     <!-- Scripts -->
@@ -982,6 +1033,11 @@
             const balanceOutput = document.getElementById("balanceOutput");
             if (balanceOutput) balanceOutput.innerHTML = "";
             break;
+          case "txHash":
+            // Clear tx search output
+            const txOutput = document.getElementById("txOutput");
+            if (txOutput) txOutput.innerHTML = "";
+            break;
         }
 
         // Show notification
@@ -990,39 +1046,102 @@
         }
       }
 
-      // History
-      document.getElementById("loadHistory").addEventListener("click", () => {
-        const address = document.getElementById("historyAddr").value.trim();
-        if (!address) return alert("Please enter a Tron address");
+      // Search type management
+      let __currentSearchType = "balance";
+      function setSearchType(type) {
+        __currentSearchType = type;
 
-        setButtonLoading("loadHistory", true);
+        document.querySelectorAll(".search-type-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        document.querySelectorAll(`[data-type="${type}"]`).forEach((btn) => {
+          btn.classList.add("active");
+        });
 
+        // Show/hide cards based on search type
+        const balanceCard = document
+          .querySelector("#balanceOutput")
+          .closest(".card");
+        const txCard = document.querySelector("#txOutput").closest(".card");
+
+        if (type === "balance") {
+          if (balanceCard) balanceCard.style.display = "block";
+          if (txCard) txCard.style.display = "none";
+          updateURLForPage(
+            "balance",
+            document.getElementById("balanceAddr").value.trim()
+          );
+        } else {
+          if (balanceCard) balanceCard.style.display = "none";
+          if (txCard) txCard.style.display = "block";
+          updateURLForPage(
+            "transaction",
+            document.getElementById("txHash").value.trim()
+          );
+          const historyOutput = document.getElementById("historyOutput");
+          if (historyOutput) historyOutput.innerHTML = "";
+          const transactionSection =
+            document.getElementById("transactionSection");
+          if (transactionSection) transactionSection.style.display = "none";
+        }
+      }
+
+      // History (auto-load after balance)
+      let __historyAddress = "";
+      function loadHistoryFor(address) {
+        __historyAddress = address;
         const perPageSelect = document.getElementById("perPageSelect");
         const limit = perPageSelect ? parseInt(perPageSelect.value, 10) : 10;
         const url = `https://api.shasta.trongrid.io/v1/accounts/${address}/transactions?limit=${limit}`;
         const section = document.getElementById("transactionSection");
         if (section) section.style.display = "block";
         resetHistoryState(limit);
-
-        transactionHistory(url, address).finally(() => {
-          setButtonLoading("loadHistory", false);
-        });
-      });
-      // Pagination buttons handled in transactionHistory.js
+        transactionHistory(url, address);
+      }
 
       // Init theme on load
       document.addEventListener("DOMContentLoaded", initializeTheme);
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const txCard = document.querySelector("#txOutput").closest(".card");
+        if (txCard) txCard.style.display = "none";
+      });
+      
+      document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const page = params.get("page");
+        if (page === "transactions") {
+          showPage("transactionsPage");
+          const address = params.get("address");
+          const tx = params.get("tx");
+          if (tx) {
+            setSearchType("transaction");
+            const txInput = document.getElementById("txHash");
+            if (txInput) {
+              txInput.value = tx;
+              runTxSearch();
+            }
+          } else if (address) {
+            setSearchType("balance");
+            const input = document.getElementById("balanceAddr");
+            if (input) {
+              input.value = address;
+              runBalanceCheck();
+            }
+          }
+        }
+      });
       const perSel = document.getElementById("perPageSelect");
       if (perSel) {
         perSel.addEventListener("change", () => {
-          const address = document.getElementById("historyAddr").value.trim();
-          if (!address) return;
+          if (!__historyAddress) return;
           const limit = parseInt(perSel.value, 10) || 10;
-          const url = `https://api.shasta.trongrid.io/v1/accounts/${address}/transactions?limit=${limit}`;
+          const url = `https://api.shasta.trongrid.io/v1/accounts/${__historyAddress}/transactions?limit=${limit}`;
           resetHistoryState(limit);
-          transactionHistory(url, address);
+          transactionHistory(url, __historyAddress);
         });
       }
+      
     </script>
     <div id="notification_drawer" class="notification-drawer"></div>
   </body>
