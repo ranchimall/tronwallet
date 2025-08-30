@@ -44,7 +44,16 @@ async function sendTrx() {
 
     // Broadcast transaction
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
-
+    console.log(receipt);
+    if (receipt && receipt.result && receipt.result.code === "INSUFFICIENT_BALANCE") {
+      throw new Error("Insufficient balance to send transaction.");
+    }
+    if (receipt && receipt.code && receipt.code === 'CONTRACT_VALIDATE_ERROR') {
+      throw new Error("Insufficient balance to send transaction.");
+    }
+    if (receipt && !receipt.result) {
+      throw new Error("Transaction failed: " + (receipt.result.message || "Unknown error"));
+    }
     const status = receipt.result ? "✅ Success" : "❌ Failed";
     const statusColor = receipt.result ? "green" : "red";
     const txid = receipt.txid ? truncate(receipt.txid) : "N/A";
@@ -134,7 +143,13 @@ async function sendTrx() {
     `;
     return receipt;
   } catch (err) {
-    outputDiv.innerHTML = `<div class="error-state"><i class="fas fa-triangle-exclamation"></i>Error: ${err.message}</div>`;
+   const outputDiv = document.getElementById("sendOutput");
+    outputDiv.innerHTML = `<div class="error-state">
+      <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <h3>Transaction Failed</h3>
+      <p>${err.message}</p>
+    </div>`;
+    if (typeof notify === "function") notify(err.message, "error");
     throw err;
   }
 }
