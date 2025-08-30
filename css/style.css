@@ -1378,6 +1378,7 @@ body {
   font-family: "Courier New", monospace;
   font-size: 0.8rem;
   flex: 1;
+  cursor: pointer;
 }
 
 .tx-hash {
@@ -4403,7 +4404,6 @@ sm-popup::part(popup) {
   color: var(--primary-color);
 }
 
-
 @media (max-width: 768px) {
   .tx-detail-row {
     flex-direction: column;
@@ -4709,7 +4709,6 @@ sm-popup::part(popup) {
   color: var(--text-primary);
 }
 
-
 @media (max-width: 768px) {
   .transaction-details-header {
     flex-direction: row;
@@ -5005,7 +5004,6 @@ sm-popup::part(popup) {
   }
 }
 
-
 @media (max-width: 600px) {
   .balance-header {
     display: flex;
@@ -5032,6 +5030,8 @@ sm-popup::part(popup) {
   }
 }
 
-.detail-link{
-  text-decoration: none; color:white; cursor: pointer;
+.detail-link {
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
 }

@@ -21,7 +21,7 @@ async function transactionHistory(url, address) {
         let from = "";
         let to = "";
         let amount = "";
-        let extraContractLine = ""; 
+        let extraContractLine = "";
 
         if (type === "TransferContract") {
           const v = tx.raw_data.contract[0].parameter.value;
@@ -33,13 +33,11 @@ async function transactionHistory(url, address) {
 
           from = tronWeb.address.fromHex(v.owner_address);
 
-          
           const contractBase58 = tronWeb.address.fromHex(v.contract_address);
           extraContractLine = `
             <p><b>Contract:</b> ${contractBase58}
               <button onclick="copyToClipboard('${contractBase58}')"><i class="fas fa-copy"></i></button>
             </p>`;
-
 
           const input = (v.data || "").startsWith("0x")
             ? v.data.slice(2)
@@ -118,7 +116,6 @@ function copyToClipboard(text) {
   });
 }
 
-
 // State for filtering and pagination
 let __nextUrl = null;
 let __prevUrls = [];
@@ -163,13 +160,13 @@ transactionHistory = async function (url, address) {
       }
       __updatePagination();
     }
-    return data; 
+    return data;
   } catch (e) {
     console.error(e);
     if (typeof __origTransactionHistory === "function") {
       __origTransactionHistory(url, address);
     }
-    throw e; 
+    throw e;
   }
 };
 
@@ -225,7 +222,7 @@ function __renderTransactions() {
     let to = "";
     let amountText = "";
     let directionClass = "";
-    let icon = "fa-arrow-up"; 
+    let icon = "fa-arrow-up";
 
     if (type === "TransferContract") {
       const v = tx.raw_data.contract[0].parameter.value;
@@ -291,11 +288,15 @@ function __renderTransactions() {
             </div>
           </div>
           <div class="tx-addresses">
-            <div class="tx-address-row"><span class="address-label">From</span><span class="address-value">${from}</span></div>
-            <div class="tx-address-row"><span class="address-label">To</span><span class="address-value">${
-              to || "—"
-            }</span></div>
-            <div class="tx-hash"><span class="hash-label">Hash</span><span class="hash-value">${hash}</span></div>
+            <div class="tx-address-row"><span class="address-label">From</span><span class="address-value" 
+                onclick="window.open('index.html?page=transactions&address=${from}','_blank')" 
+                title="View address details">${from}</span></div>
+            <div class="tx-address-row"><span class="address-label">To</span><span class="address-value" 
+                onclick="window.open('index.html?page=transactions&address=${to}','_blank')" 
+                title="View address details">${to}</span></div>
+            <div class="tx-hash"><span class="hash-label">Hash</span><span class="hash-value"><span class="detail-link"
+                onclick="window.open('index.html?page=transactions&tx=${hash}','_blank')" 
+                title="View transaction details">${hash}</span></span></div>
           </div>
         </div>
       </div>`;
@@ -359,7 +360,7 @@ function __renderPageNumbers() {
   for (let n = start; n <= end; n++) {
     parts.push(push(n, n === __currentPage));
   }
-  
+
   if (__nextUrl) parts.push('<div class="page-ellipsis">…</div>');
   return parts.join("");
 }
