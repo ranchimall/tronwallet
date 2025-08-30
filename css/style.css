@@ -1026,7 +1026,7 @@ body {
 }
 
 .input-action-btn.clear-btn {
-  right: 0.5rem; /* Position clear icon */
+  right: 0.5rem;
 }
 
 .input-action-btn i {
@@ -1283,7 +1283,7 @@ body {
 }
 
 .tx-direction.offer-create {
-  color: #87ceeb; /* Sky blue color */
+  color: #87ceeb; 
 }
 
 .transaction-card.offer .tx-direction {
@@ -1320,10 +1320,9 @@ body {
 }
 
 .transaction-card.offer .tx-amount {
-  color: #87ceeb; /* Sky blue color */
+  color: #87ceeb; 
 }
 
-/* Make OfferCreate text white-ish */
 .transaction-card.offer .tx-direction,
 .transaction-card.offer .tx-amount {
   color: var(--text-primary);
@@ -1430,7 +1429,7 @@ body {
     padding: 0.75rem;
   }
 
-  /* Make address information in one line for OfferCreate transactions on small screens */
+  /* OfferCreate transactions on small screens */
   .transaction-card.offer .tx-addresses {
     display: flex;
     flex-wrap: wrap;
@@ -4112,9 +4111,8 @@ sm-popup::part(popup) {
   max-width: 200px;
 }
 
-/* Extra Small Mobile Screens (Samsung Galaxy S8+ and similar) */
+
 @media (max-width: 480px) and (max-height: 740px) {
-  /* Specific optimizations for Galaxy S8+ (360x740px) */
   sm-popup::part(popup) {
     max-height: 95vh !important;
     max-width: 95vw !important;
@@ -4193,7 +4191,7 @@ sm-popup::part(popup) {
     padding: 0.75rem 1rem;
     font-size: 0.8rem;
     font-weight: 600;
-    min-height: 44px; /* Touch-friendly button height */
+    min-height: 44px; 
   }
 
   /* Success popup specific adjustments */
@@ -4224,12 +4222,10 @@ sm-popup::part(popup) {
     font-size: 0.7rem;
   }
 
-  /* Ensure content doesn't overflow */
   .modern-popup-container * {
     box-sizing: border-box;
   }
 
-  /* Reduce spacing further if needed */
   .summary-item:last-child {
     margin-bottom: 0;
   }
