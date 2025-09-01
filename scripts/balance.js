@@ -168,11 +168,35 @@ async function runBalanceCheck() {
           `;
       if (typeof notify === "function") notify("Balance loaded", "success");
       loadHistoryFor(tronAddress);
+      
+      // Save searched address to IndexedDB
+      if (typeof searchedAddressDB !== 'undefined') {
+        try {
+          await searchedAddressDB.saveSearchedAddress(tronAddress, balance.toLocaleString());
+          await updateSearchedAddressesList();
+        } catch (dbError) {
+          console.warn("Failed to save address to IndexedDB:", dbError);
+        }
+      }
 
       updateURLForPage("balance", tronAddress);
     } else {
       // Treat as private key (WIF or HEX)
       const { tronAddress, balance } = await getBalanceByPrivKey(inputVal);
+      
+    
+      let sourceInfo = null;
+      if (/^[5KLc9RQ][1-9A-HJ-NP-Za-km-z]{50,}$/.test(inputVal)) {
+        // This is a BTC/FLO WIF key
+        sourceInfo = {
+          type: "Private Key",
+          originalKey: inputVal,
+          originalAddress: inputVal, // Store the original private key for toggling
+          blockchain: /^[KL]/.test(inputVal) ? "BTC" : "FLO"
+        };
+      } 
+      
+      
       output.innerHTML = `
         <div class="card balance-info">
               <div class="balance-header">
@@ -201,6 +225,16 @@ async function runBalanceCheck() {
       `;
       if (typeof notify === "function") notify("Balance loaded", "success");
       loadHistoryFor(tronAddress);
+      
+      // Save searched address to IndexedDB
+      if (typeof searchedAddressDB !== 'undefined') {
+        try {
+          await searchedAddressDB.saveSearchedAddress(tronAddress, balance.toLocaleString(), Date.now(), sourceInfo);
+          await updateSearchedAddressesList();
+        } catch (dbError) {
+          console.warn("Failed to save address to IndexedDB:", dbError);
+        }
+      }
 
       updateURLForPage("balance", tronAddress);
     }

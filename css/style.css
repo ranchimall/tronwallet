@@ -808,6 +808,17 @@ body {
   color: white;
 }
 
+.toggle-key-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
 .btn-toggle-address:hover:not(.active) {
   background: var(--background-color);
   color: var(--text-primary);
@@ -2684,7 +2695,7 @@ sm-popup::part(popup) {
 .balance-amount {
   font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: var(--primary-color);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -4280,7 +4291,7 @@ sm-popup::part(popup) {
 /* ===== SHARE BUTTON STYLES ===== */
 .share-btn {
   background: var(--accent-color);
-  color: white;
+  color: var(--primary-color);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -5028,6 +5039,6 @@ sm-popup::part(popup) {
 
 .detail-link {
   text-decoration: none;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
 }
