@@ -55,9 +55,9 @@ function generateBTCFromPrivateKey(privateKey) {
 }
 
 async function generateTronWallet() {
-  const fullNode = "https://api.shasta.trongrid.io";
-  const solidityNode = "https://api.shasta.trongrid.io";
-  const eventServer = "https://api.shasta.trongrid.io";
+  const fullNode = "https://api.trongrid.io";
+  const solidityNode = "https://api.trongrid.io";
+  const eventServer = "https://api.trongrid.io";
 
   const tronWeb = new TronWeb(
     fullNode,

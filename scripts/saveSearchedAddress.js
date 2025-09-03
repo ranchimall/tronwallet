@@ -125,12 +125,9 @@ class SearchedAddressDB {
   }
 }
 
-
 const searchedAddressDB = new SearchedAddressDB();
 
-
 async function displaySearchedAddresses(addresses) {
-  
   let container = document.getElementById("searchedAddressesContainer");
   const transactionSection = document.getElementById("transactionSection");
 
@@ -138,7 +135,7 @@ async function displaySearchedAddresses(addresses) {
     container = document.createElement("div");
     container.id = "searchedAddressesContainer";
     container.className = "card searched-addresses-card";
-    
+
     if (transactionSection && transactionSection.parentNode) {
       const nextSibling = transactionSection.nextSibling;
       transactionSection.parentNode.insertBefore(container, nextSibling);
@@ -169,8 +166,7 @@ async function displaySearchedAddresses(addresses) {
       ${addresses
         .map((addr, index) => {
           // Check if this was converted from a private key from another blockchain (BTC/FLO)
-          const hasSourceInfo =
-            addr.sourceInfo && addr.sourceInfo.originalKey;
+          const hasSourceInfo = addr.sourceInfo && addr.sourceInfo.originalKey;
 
           return `
         <div class="searched-address-item ${
@@ -292,9 +288,6 @@ async function toggleAddressType(addressIndex, type) {
           addressItem.sourceInfo?.originalKey || addressItem.address;
         addressDisplay.textContent = originalKey;
         addressDisplay.title = originalKey;
-        
-       
-       
       }
     }
   } catch (error) {
@@ -325,7 +318,9 @@ async function copyCurrentAddress(addressIndex) {
     } else {
       // Copy the private key for non-Tron selection
       valueToCopy = addressItem.sourceInfo?.originalKey || addressItem.address;
-      valueLabel = `${addressItem.sourceInfo?.blockchain || "Original"} private key`;
+      valueLabel = `${
+        addressItem.sourceInfo?.blockchain || "Original"
+      } private key`;
     }
 
     await copyAddressToClipboard(valueToCopy, valueLabel);
@@ -347,16 +342,14 @@ async function deleteSearchedAddress(address) {
 }
 
 async function clearAllSearchedAddresses() {
- 
-    try {
-      await searchedAddressDB.clearAllSearchedAddresses();
-      await updateSearchedAddressesList();
-      notify("All searched addresses cleared", "success");
-    } catch (error) {
-      console.error("Error clearing searched addresses:", error);
-      notify("Failed to clear addresses", "error");
-    }
-  
+  try {
+    await searchedAddressDB.clearAllSearchedAddresses();
+    await updateSearchedAddressesList();
+    notify("All searched addresses cleared", "success");
+  } catch (error) {
+    console.error("Error clearing searched addresses:", error);
+    notify("Failed to clear addresses", "error");
+  }
 }
 
 async function copyAddressToClipboard(address, label = "Address") {

@@ -1093,7 +1093,7 @@
         __historyAddress = address;
         const perPageSelect = document.getElementById("perPageSelect");
         const limit = perPageSelect ? parseInt(perPageSelect.value, 10) : 10;
-        const url = `https://api.shasta.trongrid.io/v1/accounts/${address}/transactions?limit=${limit}`;
+        const url = `https://api.trongrid.io/v1/accounts/${address}/transactions?limit=${limit}`;
         const section = document.getElementById("transactionSection");
         if (section) section.style.display = "block";
         resetHistoryState(limit);
@@ -1137,7 +1137,7 @@
         perSel.addEventListener("change", () => {
           if (!__historyAddress) return;
           const limit = parseInt(perSel.value, 10) || 10;
-          const url = `https://api.shasta.trongrid.io/v1/accounts/${__historyAddress}/transactions?limit=${limit}`;
+          const url = `https://api.trongrid.io/v1/accounts/${__historyAddress}/transactions?limit=${limit}`;
           resetHistoryState(limit);
           transactionHistory(url, __historyAddress);
         });

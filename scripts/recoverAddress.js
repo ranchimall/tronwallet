@@ -7,9 +7,9 @@ function isWif(str) {
 
 async function recoverAllAddressesFromPrivKey(privKey) {
   const tronWeb = new TronWeb(
-    "https://api.shasta.trongrid.io",
-    "https://api.shasta.trongrid.io",
-    "https://api.shasta.trongrid.io"
+    "https://api.trongrid.io",
+    "https://api.trongrid.io",
+    "https://api.trongrid.io"
   );
 
   try {

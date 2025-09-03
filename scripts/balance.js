@@ -38,7 +38,7 @@ function shareTxLink(txid) {
   });
 }
 async function getTransactionDetails(txHash) {
-  const url = "https://api.shasta.trongrid.io/wallet/gettransactionbyid";
+  const url = "https://api.trongrid.io/wallet/gettransactionbyid";
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -64,7 +64,7 @@ async function getTransactionDetails(txHash) {
 }
 
 async function getTransactionInfoById(txHash) {
-  const url = "https://api.shasta.trongrid.io/wallet/gettransactioninfobyid";
+  const url = "https://api.trongrid.io/wallet/gettransactioninfobyid";
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -168,11 +168,14 @@ async function runBalanceCheck() {
           `;
       if (typeof notify === "function") notify("Balance loaded", "success");
       loadHistoryFor(tronAddress);
-      
+
       // Save searched address to IndexedDB
-      if (typeof searchedAddressDB !== 'undefined') {
+      if (typeof searchedAddressDB !== "undefined") {
         try {
-          await searchedAddressDB.saveSearchedAddress(tronAddress, balance.toLocaleString());
+          await searchedAddressDB.saveSearchedAddress(
+            tronAddress,
+            balance.toLocaleString()
+          );
           await updateSearchedAddressesList();
         } catch (dbError) {
           console.warn("Failed to save address to IndexedDB:", dbError);
@@ -183,8 +186,7 @@ async function runBalanceCheck() {
     } else {
       // Treat as private key (WIF or HEX)
       const { tronAddress, balance } = await getBalanceByPrivKey(inputVal);
-      
-    
+
       let sourceInfo = null;
       if (/^[5KLc9RQ][1-9A-HJ-NP-Za-km-z]{50,}$/.test(inputVal)) {
         // This is a BTC/FLO WIF key
@@ -192,11 +194,10 @@ async function runBalanceCheck() {
           type: "Private Key",
           originalKey: inputVal,
           originalAddress: inputVal, // Store the original private key for toggling
-          blockchain: /^[KL]/.test(inputVal) ? "BTC" : "FLO"
+          blockchain: /^[KL]/.test(inputVal) ? "BTC" : "FLO",
         };
-      } 
-      
-      
+      }
+
       output.innerHTML = `
         <div class="card balance-info">
               <div class="balance-header">
@@ -225,11 +226,16 @@ async function runBalanceCheck() {
       `;
       if (typeof notify === "function") notify("Balance loaded", "success");
       loadHistoryFor(tronAddress);
-      
+
       // Save searched address to IndexedDB
-      if (typeof searchedAddressDB !== 'undefined') {
+      if (typeof searchedAddressDB !== "undefined") {
         try {
-          await searchedAddressDB.saveSearchedAddress(tronAddress, balance.toLocaleString(), Date.now(), sourceInfo);
+          await searchedAddressDB.saveSearchedAddress(
+            tronAddress,
+            balance.toLocaleString(),
+            Date.now(),
+            sourceInfo
+          );
           await updateSearchedAddressesList();
         } catch (dbError) {
           console.warn("Failed to save address to IndexedDB:", dbError);
@@ -247,7 +253,6 @@ async function runBalanceCheck() {
 }
 
 async function runTxSearch() {
- 
   const input = document.getElementById("txHash");
   const output = document.getElementById("txOutput");
   const txid = (input.value || "").trim();
@@ -283,102 +288,176 @@ async function runTxSearch() {
       (tx.raw_data && tx.raw_data.contract && tx.raw_data.contract[0]) || {};
     const type = contract.type || "TransferContract";
     const parameter = contract.parameter && contract.parameter.value;
-    const to = (parameter && parameter.to_address) || "-";
-    const owner = (parameter && parameter.owner_address) || "-";
-    const amount =
-      parameter && parameter.amount ? parameter.amount / 1000000 : "-";
     const timestamp =
       tx.raw_data && tx.raw_data.timestamp
         ? new Date(tx.raw_data.timestamp).toLocaleString()
         : "-";
-    const fee = txInfo.fee ? txInfo.fee / 1000000 : "-";
     const blockNumber = txInfo.blockNumber || "-";
 
-    output.innerHTML = `
-            <div class="card transaction-details">
-              <div class="transaction-details-header">
-                <h3><i class="fas fa-receipt"></i> Transaction Details</h3>
-                <button
-                  onclick="shareTxLink('${id}')"
-                  class="btn-icon share-btn"
-                  title="Copy Shareable Link"
-                >
-                  <i class="fas fa-share-alt"></i>
-                </button>
-              </div>
-              <div class="transaction-details-content">
-                <div class="tx-detail-card">
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-check-circle"></i>
-                      Status:
-                    </span>
-                    <span class="tx-detail-value success">${ret}</span>
-                  </div>
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-exchange-alt"></i>
-                      Type:
-                    </span>
-                    <span class="tx-detail-value">${type}</span>
-                  </div>
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-coins"></i>
-                      Amount:
-                    </span>
-                    <span class="tx-detail-value amount">${amount} TRX</span>
-                  </div>
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-receipt"></i>
-                      Fee:
-                    </span>
-                    <span class="tx-detail-value">${fee} TRX</span>
-                  </div>
-                </div>
-                <div class="tx-detail-card">
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-user-minus"></i>
-                      From:
-                    </span>
-                    <span class="tx-detail-value">${owner}</span>
-                  </div>
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-user-plus"></i>
-                      To:
-                    </span>
-                    <span class="tx-detail-value">${to}</span>
-                  </div>
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-hashtag"></i>
-                      Hash:
-                    </span>
-                    <span class="tx-detail-value">${id}</span>
-                  </div>
-                </div>
-                <div class="tx-detail-card">
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-layer-group"></i>
-                      Block:
-                    </span>
-                    <span class="tx-detail-value">${blockNumber}</span>
-                  </div>
-                  <div class="tx-detail-row">
-                    <span class="tx-detail-label">
-                      <i class="fas fa-clock"></i>
-                      Date:
-                    </span>
-                    <span class="tx-detail-value">${timestamp}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
+    // Extract resources and fees from both transaction objects
+
+    let bandwidth = undefined;
+    if (txInfo.receipt && txInfo.receipt.net_usage) {
+      bandwidth = txInfo.receipt.net_usage;
+    } else if (tx.net_usage) {
+      bandwidth = tx.net_usage;
+    }
+
+    // Check both transaction info and receipt for energy usage
+    let energy = undefined;
+    if (txInfo.receipt && txInfo.receipt.energy_usage) {
+      energy = txInfo.receipt.energy_usage;
+    } else if (tx.energy_usage) {
+      energy = tx.energy_usage;
+    }
+
+    // Check for fees from multiple sources
+    let fee = "-";
+    if (txInfo.receipt && txInfo.receipt.net_fee) {
+      fee = txInfo.receipt.net_fee / 1000000;
+    } else if (txInfo.fee) {
+      fee = txInfo.fee / 1000000;
+    } else if (tx.fee) {
+      fee = tx.fee / 1000000;
+    }
+
+    // Format the resource consumption and fee HTML
+    let resourcesFeeHtml = "";
+    let feeParts = [];
+    if (bandwidth && bandwidth !== "-")
+      feeParts.push(`<div class="resource-item">${bandwidth} Bandwidth</div>`);
+    if (energy && energy !== "-")
+      feeParts.push(`<div class="resource-item">${energy} Energy</div>`);
+    if (fee && fee !== "-")
+      feeParts.push(`<div class="resource-item">${fee} TRX</div>`);
+
+    if (feeParts.length) {
+      resourcesFeeHtml = `
+        <div class='tx-detail-row resource-row'>
+          <span class='tx-detail-label'><i class='fas fa-cogs'></i> Resources Consumed & Fee:</span>
+          <span class='tx-detail-value resources-list'>${feeParts.join(
+            ""
+          )}</span>
+        </div>
+      `;
+    } else {
+      resourcesFeeHtml = `
+        <div class='tx-detail-row resource-row'>
+          <span class='tx-detail-label'><i class='fas fa-cogs'></i> Resources Consumed & Fee:</span>
+          <span class='tx-detail-value resources-list'><span class="resource-item">- No resources consumed</span></span>
+        </div>
+      `;
+    }
+
+    let detailsHtml = "";
+    let owner = (parameter && parameter.owner_address) || "-";
+    let to = (parameter && parameter.to_address) || "-";
+    let amount =
+      parameter && parameter.amount ? parameter.amount / 1000000 : "-";
+    let tokenInfo = "";
+    let resourceInfo = "";
+
+    if (type === "TriggerSmartContract") {
+      let contractAddr =
+        parameter && parameter.contract_address
+          ? parameter.contract_address
+          : "-";
+      let tokenAmount = "-";
+      let tokenSymbol = "USDT";
+      let tokenTo = "-";
+      if (txInfo.log && txInfo.log.length > 0) {
+        const log = txInfo.log[0];
+        if (log.topics && log.topics.length >= 3) {
+          tokenTo = tronWeb.address.fromHex("41" + log.topics[2].slice(-40));
+          tokenAmount = parseInt(log.data, 16) / 1e6;
+        }
+      }
+      tokenInfo = `<div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-coins'></i> Amount:</span><span class='tx-detail-value amount'>${tokenAmount} USDT</span></div>`;
+      detailsHtml = `
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-check-circle'></i> Status:</span><span class='tx-detail-value success'>${ret}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-exchange-alt'></i> Type:</span><span class='tx-detail-value'>${type}</span></div>
+          ${tokenInfo}
+        </div>
+        <div class='tx-detail-card'>
+          ${resourcesFeeHtml}
+        </div>
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-user-minus'></i> From:</span><span class='tx-detail-value'>${owner}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-user-plus'></i> To:</span><span class='tx-detail-value'>${tokenTo}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-hashtag'></i> Hash:</span><span class='tx-detail-value'>${id}</span></div>
+        </div>
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-layer-group'></i> Block:</span><span class='tx-detail-value'>${blockNumber}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-clock'></i> Date:</span><span class='tx-detail-value'>${timestamp}</span></div>
+        </div>
+      `;
+    } else if (
+      type === "DelegateResourceContract" ||
+      type === "UnDelegateResourceContract"
+    ) {
+      // Resource delegation/undelegation
+      let resourceType =
+        parameter && parameter.resource ? parameter.resource : "BANDWIDTH";
+      let stakedAmount =
+        amount !== "-" ? `${amount} TRX` : `${parameter.balance / 1e6} TRX`;
+      let resourceTakenFrom =
+        parameter && parameter.receiver_address
+          ? parameter.receiver_address
+          : "-";
+      let stakedAssetHtml = "";
+      let delegatedHtml = "";
+      let reclaimedHtml = "";
+      if (type === "DelegateResourceContract") {
+        stakedAssetHtml = `<div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-coins'></i> Staked Asset Withheld:</span><span class='tx-detail-value amount'>${stakedAmount} </span></div>`;
+        delegatedHtml = `<div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-leaf'></i> Delegated Resources:</span><span class='tx-detail-value'>${resourceType}</span></div>`;
+      } else if (type === "UnDelegateResourceContract") {
+        stakedAssetHtml = `<div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-coins'></i> Staked Asset Released:</span><span class='tx-detail-value amount'>${stakedAmount}</span></div>`;
+        reclaimedHtml = `<div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-leaf'></i> Reclaimed Resources:</span><span class='tx-detail-value'>${resourceType}</span></div>`;
+      }
+      detailsHtml = `
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-check-circle'></i> Status:</span><span class='tx-detail-value success'>${ret}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-exchange-alt'></i> Type:</span><span class='tx-detail-value'>${type}</span></div>
+          ${stakedAssetHtml}
+          ${delegatedHtml}
+          ${reclaimedHtml}
+        </div>
+        <div class='tx-detail-card'>
+          ${resourcesFeeHtml}
+        </div>
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-user-minus'></i> Owner Address:</span><span class='tx-detail-value'>${owner}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-user-plus'></i> Resource Taken From:</span><span class='tx-detail-value'>${resourceTakenFrom}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-hashtag'></i> Hash:</span><span class='tx-detail-value'>${id}</span></div>
+        </div>
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-layer-group'></i> Block:</span><span class='tx-detail-value'>${blockNumber}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-clock'></i> Date:</span><span class='tx-detail-value'>${timestamp}</span></div>
+        </div>
+      `;
+    } else {
+      // Default rendering (TransferContract, etc)
+      detailsHtml = `
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-check-circle'></i> Status:</span><span class='tx-detail-value success'>${ret}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-exchange-alt'></i> Type:</span><span class='tx-detail-value'>${type}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-coins'></i> Amount:</span><span class='tx-detail-value amount'>${amount} TRX</span></div>
+          ${resourcesFeeHtml}
+        </div>
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-user-minus'></i> From:</span><span class='tx-detail-value'>${owner}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-user-plus'></i> To:</span><span class='tx-detail-value'>${to}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-hashtag'></i> Hash:</span><span class='tx-detail-value'>${id}</span></div>
+        </div>
+        <div class='tx-detail-card'>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-layer-group'></i> Block:</span><span class='tx-detail-value'>${blockNumber}</span></div>
+          <div class='tx-detail-row'><span class='tx-detail-label'><i class='fas fa-clock'></i> Date:</span><span class='tx-detail-value'>${timestamp}</span></div>
+        </div>
+      `;
+    }
+
+    output.innerHTML = `<div class='card transaction-details'><div class='transaction-details-header'><h3><i class='fas fa-receipt'></i> Transaction Details</h3><button onclick="shareTxLink('${id}')" class='btn-icon share-btn' title='Copy Shareable Link'><i class='fas fa-share-alt'></i></button></div><div class='transaction-details-content'>${detailsHtml}</div></div>`;
 
     if (typeof notify === "function") notify("Transaction found", "success");
   } catch (err) {

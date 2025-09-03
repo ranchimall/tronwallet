@@ -1,103 +1,50 @@
 const options = { method: "GET", headers: { accept: "application/json" } };
 let nextUrl = null;
 
-async function transactionHistory(url, address) {
+const transactionHistory = async function (url, address) {
   try {
-    const response = await fetch(url, options);
+    if (typeof notify === "function")
+      notify("Loading transactions...", "success", 1500);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { accept: "application/json" },
+    });
     const data = await response.json();
 
-    const historyDiv = document.getElementById("historyOutput");
-    historyDiv.innerHTML = "";
+    const section = document.getElementById("transactionSection");
+    if (section) section.style.display = "block";
+
+    __currentAddress = address;
+    __currentUrl = url;
+    window.lastUsedUrl = url;
 
     if (data && data.data) {
       console.log(data.data);
 
-      data.data.forEach((tx) => {
-        const hash = tx.txID;
-        const block = tx.blockNumber;
-        const age = new Date(tx.block_timestamp).toLocaleString();
-        const type = tx.raw_data.contract[0].type;
+      __currentTxs = data.data;
+      // track current per-page from url
+      const m = url.match(/limit=(\d+)/);
+      if (m) __perPage = parseInt(m[1], 10) || __perPage;
+      __renderTransactions();
 
-        let from = "";
-        let to = "";
-        let amount = "";
-        let extraContractLine = "";
-
-        if (type === "TransferContract") {
-          const v = tx.raw_data.contract[0].parameter.value;
-          from = tronWeb.address.fromHex(v.owner_address);
-          to = tronWeb.address.fromHex(v.to_address);
-          amount = v.amount / 1e6 + " TRX";
-        } else if (type === "TriggerSmartContract") {
-          const v = tx.raw_data.contract[0].parameter.value;
-
-          from = tronWeb.address.fromHex(v.owner_address);
-
-          const contractBase58 = tronWeb.address.fromHex(v.contract_address);
-          extraContractLine = `
-            <p><b>Contract:</b> ${contractBase58}
-              <button onclick="copyToClipboard('${contractBase58}')"><i class="fas fa-copy"></i></button>
-            </p>`;
-
-          const input = (v.data || "").startsWith("0x")
-            ? v.data.slice(2)
-            : v.data || "";
-          const method = input.slice(0, 8).toLowerCase();
-
-          if (method === "a9059cbb" && input.length >= 8 + 64 + 64) {
-            const addrSlot = input.slice(8, 8 + 64);
-            const amountSlot = input.slice(8 + 64, 8 + 64 + 64);
-
-            const evmAddrHex = addrSlot.slice(24);
-            const tronHex = "41" + evmAddrHex.toLowerCase();
-            to = tronWeb.address.fromHex(tronHex);
-
-            const raw = BigInt("0x" + amountSlot);
-            amount = Number(raw) / 1e6 + " USDT";
-          } else {
-            to = "—";
-            amount = "—";
-          }
-        }
-
-        const result = tx.ret?.[0]?.contractRet || "UNKNOWN";
-        const statusColor = result === "SUCCESS" ? "green" : "red";
-
-        // create card
-        const card = document.createElement("div");
-        card.className = "tx-card";
-
-        card.innerHTML = `
-          <p><b>Hash:</b> ${truncate(hash)}
-            <button onclick="copyToClipboard('${hash}')"><i class="fas fa-copy"></i></button></p>
-          <p><b>Block:</b> ${block}</p>
-          <p><b>Age:</b> ${age}</p>
-          <p><b>Type:</b> ${type}</p>
-          <p><b>From:</b> ${from}
-            <button onclick="copyToClipboard('${from}')"><i class="fas fa-copy"></i></button></p>
-          <p><b>To:</b> ${to}
-            <button onclick="copyToClipboard('${to}')"><i class="fas fa-copy"></i></button></p>
-          ${extraContractLine}
-          <p><b>Amount:</b> <span style="color:#0f0;font-weight:bold">${amount}</span></p>
-          <p><b>Status:</b> <span style="color:${statusColor}">${result}</span></p>
-        `;
-
-        historyDiv.appendChild(card);
-      });
-
-      // save nextUrl for pagination
       if (data.meta && data.meta.fingerprint) {
-        nextUrl = `https://api.shasta.trongrid.io/v1/accounts/${address}/transactions?limit=10&fingerprint=${encodeURIComponent(
+        __nextUrl = `https://api.trongrid.io/v1/accounts/${address}/transactions?limit=${__perPage}&fingerprint=${encodeURIComponent(
           data.meta.fingerprint
         )}`;
       } else {
-        nextUrl = null;
+        __nextUrl = null;
       }
+      __updatePagination();
     }
-  } catch (error) {
-    console.error(error);
+    return data;
+  } catch (e) {
+    console.error(e);
+    if (typeof __origTransactionHistory === "function") {
+      __origTransactionHistory(url, address);
+    }
+    throw e;
   }
-}
+};
 
 function fetchNext(address) {
   if (nextUrl) {
@@ -125,50 +72,6 @@ let __currentFilter = "all"; // all | received | sent
 let __currentPage = 1;
 let __currentUrl = null;
 let __perPage = 10;
-
-const __origTransactionHistory = transactionHistory;
-transactionHistory = async function (url, address) {
-  try {
-    if (typeof notify === "function")
-      notify("Loading transactions...", "success", 1500);
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { accept: "application/json" },
-    });
-    const data = await response.json();
-
-    const section = document.getElementById("transactionSection");
-    if (section) section.style.display = "block";
-
-    __currentAddress = address;
-    __currentUrl = url;
-    window.lastUsedUrl = url;
-
-    if (data && data.data) {
-      __currentTxs = data.data;
-      // track current per-page from url
-      const m = url.match(/limit=(\d+)/);
-      if (m) __perPage = parseInt(m[1], 10) || __perPage;
-      __renderTransactions();
-
-      if (data.meta && data.meta.fingerprint) {
-        __nextUrl = `https://api.shasta.trongrid.io/v1/accounts/${address}/transactions?limit=${__perPage}&fingerprint=${encodeURIComponent(
-          data.meta.fingerprint
-        )}`;
-      } else {
-        __nextUrl = null;
-      }
-      __updatePagination();
-    }
-    return data;
-  } catch (e) {
-    console.error(e);
-    if (typeof __origTransactionHistory === "function") {
-      __origTransactionHistory(url, address);
-    }
-    throw e;
-  }
-};
 
 function __renderTransactions() {
   const list = document.getElementById("txList");
@@ -247,10 +150,32 @@ function __renderTransactions() {
         amountText = Number(raw) / 1e6 + " USDT";
       }
       icon = "fa-file-signature";
+    } else if (
+      type === "DelegateResourceContract" ||
+      type === "UnDelegateResourceContract"
+    ) {
+      // Handle resource delegation/undelegation
+      const v = tx.raw_data.contract[0].parameter.value;
+      from = tronWeb.address.fromHex(v.owner_address);
+      to = v.receiver_address
+        ? tronWeb.address.fromHex(v.receiver_address)
+        : "";
+      amountText =
+        v.balance / 1e6 +
+        " TRX (" +
+        (v.resource ? v.resource : "Bandwidth") +
+        ")";
+      directionClass = "resource";
     }
 
     // Set direction and icon based on transaction direction
-    if (from === __currentAddress) {
+    if (type === "DelegateResourceContract") {
+      directionClass = "delegate-resource";
+      icon = "fa-exchange-alt"; // custom icon for delegate
+    } else if (type === "UnDelegateResourceContract") {
+      directionClass = "reclaim-resource";
+      icon = "fa-exchange-alt"; // custom icon for undelegate
+    } else if (from === __currentAddress) {
       directionClass = "outgoing";
       icon = "fa-arrow-up"; // upward arrow for sent
     } else if (to === __currentAddress) {
@@ -272,7 +197,11 @@ function __renderTransactions() {
           <div class="tx-header">
             <div>
               <div class="tx-direction">${
-                directionClass === "incoming"
+                directionClass === "delegate-resource"
+                  ? "Delegate Resources"
+                  : directionClass === "reclaim-resource"
+                  ? "Reclaim Resources"
+                  : directionClass === "incoming"
                   ? "Received"
                   : directionClass === "outgoing"
                   ? "Sent"
@@ -309,10 +238,22 @@ function __updatePagination() {
   const prevBtn = document.getElementById("prevBtn");
   const info = document.getElementById("paginationInfo");
   const pageNumbers = document.getElementById("pageNumbers");
+
   if (nextBtn) nextBtn.disabled = !__nextUrl;
   if (prevBtn) prevBtn.disabled = __prevUrls.length === 0;
   if (info) info.textContent = `Page ${__currentPage} • ${__perPage} / page`;
-  if (pageNumbers) pageNumbers.innerHTML = __renderPageNumbers();
+
+  if (pageNumbers) {
+    pageNumbers.innerHTML = __renderPageNumbers();
+
+    document.querySelectorAll(".page-number").forEach((button) => {
+      const pageNum = parseInt(button.textContent);
+      if (!isNaN(pageNum)) {
+        button.style.cursor = "pointer";
+        button.addEventListener("click", () => goToPage(pageNum));
+      }
+    });
+  }
 }
 
 function setTransactionFilter(filter) {
@@ -348,7 +289,9 @@ function goToPreviousPage() {
 function __renderPageNumbers() {
   const parts = [];
   const push = (n, active) =>
-    `<div class="page-number ${active ? "active" : ""}">${n}</div>`;
+    `<div class="page-number ${
+      active ? "active" : ""
+    }" onclick="goToPage(${n})">${n}</div>`;
   // Always show 1
   if (__currentPage === 1) parts.push(push(1, true));
   else parts.push(push(1, false));
@@ -371,4 +314,61 @@ function resetHistoryState(perPage) {
   __currentUrl = null;
   __nextUrl = null;
   __perPage = perPage || 10;
+}
+
+// Function to go to a specific page number
+function goToPage(pageNumber) {
+  if (pageNumber === __currentPage) {
+    return; // Already on the page
+  }
+
+  // If going to page 1, just reset and load initial data
+  if (pageNumber === 1) {
+    __prevUrls = [];
+    __currentPage = 1;
+    const baseUrl = `https://api.trongrid.io/v1/accounts/${__currentAddress}/transactions?limit=${__perPage}`;
+    transactionHistory(baseUrl, __currentAddress);
+    return;
+  }
+
+  // If trying to go forward
+  if (pageNumber > __currentPage) {
+    // We can only go one page forward at a time due to API pagination limitations
+    if (pageNumber === __currentPage + 1 && __nextUrl) {
+      goToNextPage();
+      return;
+    }
+  }
+
+  // If trying to go backward
+  if (pageNumber < __currentPage) {
+    // Check if we have the page in our history
+    const targetPrevUrl = __prevUrls.find((prev) => prev.page === pageNumber);
+    if (targetPrevUrl) {
+      // We found the exact page in history
+      while (
+        __prevUrls.length > 0 &&
+        __prevUrls[__prevUrls.length - 1].page >= pageNumber
+      ) {
+        __prevUrls.pop();
+      }
+      __currentPage = pageNumber;
+      transactionHistory(targetPrevUrl.url, __currentAddress);
+      return;
+    } else {
+      // We need to go back to page 1 and build our way up
+      const baseUrl = `https://api.trongrid.io/v1/accounts/${__currentAddress}/transactions?limit=${__perPage}`;
+      __prevUrls = [];
+      __currentPage = 1;
+      transactionHistory(baseUrl, __currentAddress);
+
+      if (typeof notify === "function") {
+        notify(
+          "Navigating to page 1 due to API pagination limitations",
+          "info",
+          3000
+        );
+      }
+    }
+  }
 }

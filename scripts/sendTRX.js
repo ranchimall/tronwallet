@@ -1,6 +1,6 @@
-const fullNode = "https://api.shasta.trongrid.io";
-const solidityNode = "https://api.shasta.trongrid.io";
-const eventServer = "https://api.shasta.trongrid.io";
+const fullNode = "https://api.trongrid.io";
+const solidityNode = "https://api.trongrid.io";
+const eventServer = "https://api.trongrid.io";
 const tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
 
 async function sendTrx() {
@@ -45,14 +45,20 @@ async function sendTrx() {
     // Broadcast transaction
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
     console.log(receipt);
-    if (receipt && receipt.result && receipt.result.code === "INSUFFICIENT_BALANCE") {
+    if (
+      receipt &&
+      receipt.result &&
+      receipt.result.code === "INSUFFICIENT_BALANCE"
+    ) {
       throw new Error("Insufficient balance to send transaction.");
     }
-    if (receipt && receipt.code && receipt.code === 'CONTRACT_VALIDATE_ERROR') {
+    if (receipt && receipt.code && receipt.code === "CONTRACT_VALIDATE_ERROR") {
       throw new Error("Insufficient balance to send transaction.");
     }
     if (receipt && !receipt.result) {
-      throw new Error("Transaction failed: " + (receipt.result.message || "Unknown error"));
+      throw new Error(
+        "Transaction failed: " + (receipt.result.message || "Unknown error")
+      );
     }
     const status = receipt.result ? "✅ Success" : "❌ Failed";
     const statusColor = receipt.result ? "green" : "red";
@@ -143,7 +149,7 @@ async function sendTrx() {
     `;
     return receipt;
   } catch (err) {
-   const outputDiv = document.getElementById("sendOutput");
+    const outputDiv = document.getElementById("sendOutput");
     outputDiv.innerHTML = `<div class="error-state">
       <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
       <h3>Transaction Failed</h3>
