@@ -2763,7 +2763,7 @@ sm-popup::part(popup) {
   transform: scale(1.1);
 }
 
-  /* Responsive adjustments for balance info */
+/* Responsive adjustments for balance info */
 @media (max-width: 480px) {
   .detail-row {
     flex-direction: column;
@@ -2791,39 +2791,39 @@ sm-popup::part(popup) {
     text-overflow: ellipsis;
   }
 }
-  
-  /* Resources and fees styling - always display on separate lines */
-  .tx-detail-value.resources-list {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important; /* Right-align the resource items */
-    gap: 0.5rem !important;
-    text-align: right !important;
-    width: 100% !important;
-  }
-  
-  /* Special styling for resource rows */
-  .tx-detail-row.resource-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-  
-  .resource-item {
-    display: block !important;
-    padding: 0.25rem 0.5rem !important;
-    background-color: rgba(59, 130, 246, 0.05) !important;
-    border-radius: 0.25rem !important;
-    margin-bottom: 0.375rem !important;
-    font-family: inherit !important; 
-    text-align: right !important;
-    width: fit-content !important;
-    margin-left: auto !important; 
-  }
-  
-  .resource-item:last-child {
-    margin-bottom: 0;
-  }
+
+/* Resources and fees styling - always display on separate lines */
+.tx-detail-value.resources-list {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important; /* Right-align the resource items */
+  gap: 0.5rem !important;
+  text-align: right !important;
+  width: 100% !important;
+}
+
+/* Special styling for resource rows */
+.tx-detail-row.resource-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.resource-item {
+  display: block !important;
+  padding: 0.25rem 0.5rem !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  border-radius: 0.25rem !important;
+  margin-bottom: 0.375rem !important;
+  font-family: inherit !important;
+  text-align: right !important;
+  width: fit-content !important;
+  margin-left: auto !important;
+}
+
+.resource-item:last-child {
+  margin-bottom: 0;
+}
 /* Responsive Design */
 @media (max-width: 768px) {
   .hamburger-btn {
@@ -4457,19 +4457,19 @@ sm-popup::part(popup) {
   .tx-detail-label {
     min-width: auto;
   }
-  
+
   /* Resource items on small screens - left aligned */
   .tx-detail-value.resources-list {
     align-items: flex-start !important;
     text-align: left !important;
   }
-  
+
   .resource-item {
     text-align: left !important;
     margin-left: 0 !important;
     width: fit-content !important;
   }
-  
+
   /* Keep resource rows stacked on mobile */
   .tx-detail-row.resource-row {
     flex-direction: column;
